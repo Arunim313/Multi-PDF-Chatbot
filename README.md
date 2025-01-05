@@ -85,9 +85,6 @@
 ## Contributing
 Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
-
 ## Acknowledgments
 - [Streamlit](https://streamlit.io/) for the web application framework.
 - [LangChain](https://langchain.com/) for the conversational AI framework.
