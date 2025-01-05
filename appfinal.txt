@@ -1,0 +1,202 @@
+import streamlit as st
+import os
+from dotenv import load_dotenv
+from PyPDF2 import PdfReader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory
+from langchain.chains import ConversationalRetrievalChain
+import logging
+import traceback
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Load environment variables
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Define persistent directory for ChromaDB
+PERSIST_DIRECTORY = "db"
+os.makedirs(PERSIST_DIRECTORY, exist_ok=True)
+
+# Initialize session state
+if "conversation" not in st.session_state:
+    st.session_state.conversation = None
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+if "processing_complete" not in st.session_state:
+    st.session_state.processing_complete = False
+
+def get_pdf_text(pdf_docs):
+    try:
+        text = ""
+        for pdf in pdf_docs:
+            logger.info(f"Processing PDF: {pdf.name}")
+            pdf_reader = PdfReader(pdf)
+            for page_num, page in enumerate(pdf_reader.pages):
+                try:
+                    page_text = page.extract_text()
+                    text += page_text
+                    logger.info(f"Processed page {page_num + 1}")
+                except Exception as e:
+                    logger.error(f"Error processing page {page_num + 1}: {str(e)}")
+        return text
+    except Exception as e:
+        logger.error(f"Error in get_pdf_text: {str(e)}")
+        st.error(f"Error processing PDF: {str(e)}")
+        return None
+
+def get_text_chunks(text):
+    try:
+        text_splitter = CharacterTextSplitter(
+            separator="\n",
+            chunk_size=1000,
+            chunk_overlap=200,
+            length_function=len
+        )
+        chunks = text_splitter.split_text(text)
+        logger.info(f"Created {len(chunks)} text chunks")
+        return chunks
+    except Exception as e:
+        logger.error(f"Error in get_text_chunks: {str(e)}")
+        st.error(f"Error creating text chunks: {str(e)}")
+        return None
+
+def get_vectorstore(text_chunks):
+    try:
+        embeddings = OpenAIEmbeddings()
+        vectorstore = Chroma.from_texts(
+            texts=text_chunks,
+            embedding=embeddings,
+            persist_directory=PERSIST_DIRECTORY
+        )
+        vectorstore.persist()
+        logger.info("Vector store created and persisted successfully")
+        return vectorstore
+    except Exception as e:
+        logger.error(f"Error in get_vectorstore: {str(e)}\n{traceback.format_exc()}")
+        st.error(f"Error creating vector store: {str(e)}")
+        return None
+
+def get_conversation_chain(vectorstore):
+    try:
+        llm = ChatOpenAI(model="gpt-3.5-turbo-0125")
+        memory = ConversationBufferMemory(
+            memory_key='chat_history',
+            return_messages=True
+        )
+        conversation_chain = ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=vectorstore.as_retriever(),
+            memory=memory
+        )
+        logger.info("Conversation chain created successfully")
+        return conversation_chain
+    except Exception as e:
+        logger.error(f"Error in get_conversation_chain: {str(e)}")
+        st.error(f"Error creating conversation chain: {str(e)}")
+        return None
+
+def handle_userinput(user_question):
+    try:
+        response = st.session_state.conversation({'question': user_question})
+        st.session_state.chat_history = response['chat_history']
+        st.session_state.user_question = ""
+    except Exception as e:
+        logger.error(f"Error in handle_userinput: {str(e)}")
+        st.error(f"Error processing your question: {str(e)}")
+
+def process_pdfs(pdf_docs):
+    try:
+        with st.spinner("Extracting text from PDFs..."):
+            raw_text = get_pdf_text(pdf_docs)
+            if raw_text is None:
+                return
+
+        with st.spinner("Creating text chunks..."):
+            text_chunks = get_text_chunks(raw_text)
+            if text_chunks is None:
+                return
+
+        with st.spinner("Creating vector store..."):
+            vectorstore = get_vectorstore(text_chunks)
+            if vectorstore is None:
+                return
+
+        with st.spinner("Setting up conversation chain..."):
+            st.session_state.conversation = get_conversation_chain(vectorstore)
+            if st.session_state.conversation is None:
+                return
+
+        st.session_state.processing_complete = True
+        st.success("Processing complete!")
+        logger.info("PDF processing completed successfully")
+    except Exception as e:
+        logger.error(f"Error in process_pdfs: {str(e)}\n{traceback.format_exc()}")
+        st.error(f"Error processing PDFs: {str(e)}")
+        st.session_state.processing_complete = False
+
+# Page configuration
+st.set_page_config(page_title="Chat with Multiple PDFs", page_icon="📚", layout="wide")
+
+# Main UI
+st.header("Chat with Multiple PDFs 📚")
+
+# Sidebar for PDF upload
+with st.sidebar:
+    st.subheader("Your Documents")
+    pdf_docs = st.file_uploader(
+        "Upload your PDFs here and click on 'Process'",
+        accept_multiple_files=True,
+        type="pdf"
+    )
+    if st.button("Process"):
+        if pdf_docs:
+            process_pdfs(pdf_docs)
+        else:
+            st.warning("Please upload at least one PDF file.")
+
+# Main chat interface
+if st.session_state.processing_complete:
+    user_question = st.text_input(
+        "Ask a question about your documents:",
+        placeholder="ask question here",
+        value=st.session_state.get('user_question', '')
+    )
+    
+    if st.button("Send Query"):
+        if user_question:
+            handle_userinput(user_question)
+
+    # Display chat history
+    for i, message in enumerate(st.session_state.chat_history):
+        if i % 2 == 0:
+            st.write(f"You: {message.content}")
+        else:
+            with st.chat_message("assistant"):
+                st.write(f"Bot: {message.content}")
+else:
+    st.info("Please upload your PDFs and click 'Process' to start chatting.")
+
+# Add custom CSS for better UI
+st.markdown("""
+<style>
+    .stTextInput > div > div > input {
+        background-color: #050505;
+    }
+    .stTextInput > div > div > input:focus {
+        box-shadow: 0 0 0 2px #4CAF50;
+    }
+    .stButton > button {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .stButton > button:hover {
+        background-color: #45a049;
+    }
+</style>
+""", unsafe_allow_html=True)
