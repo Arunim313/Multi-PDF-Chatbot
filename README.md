@@ -4,7 +4,7 @@
 "Chat with Multiple PDFs" is a Streamlit application that allows users to upload multiple PDF documents and interactively ask questions about their content. The application processes the PDFs, extracts text, and utilizes a conversational AI model to provide responses based on the uploaded documents.
 
 ## Demo video 
-[![Video Preview](media/preview.png)](https://path/to/your/video.mp4)
+[![Video Preview](media/preview.png)]([https://path/to/your/video.mp4](https://github.com/Arunim313/Multi-PDF-Chatbot/blob/master/media/cloud_ambassador%20assignment.mp4))
 
 ## Features
 - Upload multiple PDF files.
