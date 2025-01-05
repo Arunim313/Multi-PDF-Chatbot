@@ -47,8 +47,8 @@
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/Arunim313/Multi-PDF-Chatbot
+   cd Multi-PDF-Chatbot
    ```
 
 2. **Create a virtual environment** (optional but recommended):
