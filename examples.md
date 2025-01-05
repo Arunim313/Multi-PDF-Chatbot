@@ -12,7 +12,7 @@ This document provides example queries that users can ask the application, along
 ### Query 2
 **User:** Who is Arunim ?
 
-**Response:** Arunim Malviya is a student pursuing a Master of Technology in Data Science and Artificial Intelligence at the School of Data Science and Forecasting, DAVV Indore, India. He is also currently working as a Data Science Intern at NYX, where he has been involved in developing recommendation models, engineering ETL pipelines, conducting QA testing, and leading data migration projects.
+**Response:** Arunim Malviya is a student pursuing a Master of Technology in Data Science and Artificial Intelligence at the School of Data Science and Forecasting, DAVV Indore, India. He is also currently working as a Machine Learning Engineer at NYX, where he has been involved in developing recommendation models, engineering ETL pipelines, conducting QA testing, and leading data migration projects.
 
 
 ## Additional Notes
