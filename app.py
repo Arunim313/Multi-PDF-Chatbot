@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Define persistent directory for ChromaDB
 PERSIST_DIRECTORY = "db"
@@ -84,6 +85,7 @@ with st.sidebar:
         accept_multiple_files=True,
         type="pdf"
     )
+    st.info("Please upload your PDFs and click 'Process' to start chatting.")
     if st.button("Process"):
         if pdf_docs:
             process_pdfs(pdf_docs)
@@ -110,7 +112,7 @@ if st.session_state.processing_complete:
             with st.chat_message("assistant"):
                 st.write(f"Bot: {message.content}")
 else:
-    st.info("Please upload your PDFs and click 'Process' to start chatting.")
+    st.info("You can continue chatting about previously uploaded documents at any time!")
 
 # Add custom CSS for better UI
 st.markdown("""
