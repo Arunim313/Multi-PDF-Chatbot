@@ -3,9 +3,6 @@
 ## Overview
 This document provides an overview of the design and architecture of the "Chat with Multiple PDFs" application.
 
-## Architecture Diagram
-![Architecture Diagram](docs/architecture_diagram.png)  <!-- Link to your architecture diagram if you have one -->
-
 ## Components
 1. **Streamlit Application**: The user interface where users can upload PDFs and interact with the AI.
 2. **PDF Processing Module**: Responsible for extracting text from uploaded PDF documents.
