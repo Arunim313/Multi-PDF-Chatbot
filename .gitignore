@@ -1,5 +1,5 @@
 .env
-db/
+pdf_rag_db/
 __pycache__/
 utils/__pycache__/
 test.py

@@ -21,7 +21,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Define persistent directory for ChromaDB
-PERSIST_DIRECTORY = "db"
+PERSIST_DIRECTORY = "pdf_rag_db"
 os.makedirs(PERSIST_DIRECTORY, exist_ok=True)
 
 # Initialize session state
