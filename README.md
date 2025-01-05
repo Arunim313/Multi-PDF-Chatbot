@@ -82,6 +82,10 @@
 3. **Ask Questions**: Once processing is complete, enter your questions in the input field and click "Send Query" to receive answers based on the uploaded documents.
 4. **View Chat History**: The chat history will display your questions and the AI's responses.
 
+## Additional Documentation
+- [Example Queries and Responses](examples.md)
+- [Design Explanation and Architectural Overview](architecture.md)
+
 ## Contributing
 Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
 
