@@ -87,7 +87,7 @@
 
 ## Additional Documentation
 - [Example Queries and Responses](examples.md)
-- [Design Explanation and Architectural Overview](architecture.md)
+- [Design Explanation and Architectural Overview](archirecture.md)
 
 ## Contributing
 Contributions are welcome! If you have suggestions for improvements or new features, please open an issue or submit a pull request.
